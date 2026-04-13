@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGA Questionnaire Format Comparison — Research Demo</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red:    #c0392b;
+  --green:  #1e8449;
+  --dark:   #1a1a2e;
+  --mid:    #444;
+  --light:  #f5f6fa;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: #e8eaf0;
+  color: #222;
+  min-height: 100vh;
+}
+
+/* ── PAGE HEADER ─────────────────────────────────────── */
+.page-header {
+  background: var(--dark);
+  color: #fff;
+  padding: 18px 24px;
+  text-align: center;
+}
+.page-header h1 { font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: 700; }
+.page-header p  { font-size: 0.78rem; opacity: .65; margin-top: 4px; }
+
+/* ── SECTION SHELL ───────────────────────────────────── */
+.section {
+  padding: 28px 20px 36px;
+  position: relative;
+}
+.section-a { background: #fff; }
+.section-b { background: #f2f5f0; }
+
+.section-meta { margin-bottom: 18px; }
+.section-tag {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+}
+.tag-a { background: #fde8e6; color: var(--red); }
+.tag-b { background: #e4f5ea; color: var(--green); }
+.section-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
+.section-desc  { font-size: .8rem; color: #666; line-height: 1.5; }
+
+/* ── PLAY BUTTON ─────────────────────────────────────── */
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  user-select: none;
+}
+.play-btn:active { transform: scale(.97); }
+
+.play-btn-a { background: var(--red);   color: #fff; }
+.play-btn-a:hover  { background: #a93226; }
+.play-btn-a.active { background: #777; }
+
+.play-btn-b { background: var(--green); color: #fff; }
+.play-btn-b:hover  { background: #176038; }
+.play-btn-b.active { background: #777; }
+
+/* ── QUESTION TABS ───────────────────────────────────── */
+.q-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.q-tab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #ccc;
+  background: #fff;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  color: #555;
+}
+.q-tab.active-a { background: var(--red);   color: #fff; border-color: var(--red); }
+.q-tab.active-b { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* ── FORMAT A ─────────────────────────────────────────── */
+.controls-a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: .72rem;
+  color: #555;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot  { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+/* Survey form A */
+.survey-wrap {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.survey-wrap canvas {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.survey-block {
+  border: 1px solid #dde;
+  border-radius: 6px;
+  padding: 22px 20px;
+  background: #fafafa;
+  margin-bottom: 0;
+}
+.survey-q-num {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #999;
+  margin-bottom: 8px;
+}
+.survey-q-text {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #333;
+  margin-bottom: 20px;
+}
+.survey-q-text .wa {
+  display: inline;
+  cursor: default;
+}
+.survey-options { display: flex; flex-direction: column; gap: 9px; }
+.survey-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  font-size: .93rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.survey-opt:hover { background: #f0f0f0; }
+.survey-opt input[type=radio] {
+  accent-color: #2563eb;
+  width: 15px; height: 15px;
+}
+
+/* ── FORMAT B ─────────────────────────────────────────── */
+.controls-b {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.voice-status {
+  font-size: .75rem;
+  color: #777;
+  min-height: 16px;
+  margin-bottom: 16px;
+}
+
+.voice-panel {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.voice-block {
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px 22px 24px;
+  box-shadow: 0 3px 16px rgba(0,0,0,.09);
+}
+.voice-q-num {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #bbb;
+  margin-bottom: 12px;
+}
+.voice-q-text {
+  font-size: 1.2rem;
+  line-height: 2;
+  color: #111;
+  margin-bottom: 24px;
+  word-break: break-word;
+}
+.voice-q-text .wb {
+  display: inline;
+  padding: 1px 2px;
+  border-radius: 3px;
+  transition: background .08s, color .08s;
+}
+.voice-q-text .wb.hl {
+  background: var(--dark);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+.voice-options { display: grid; gap: 11px; }
+.voice-opt {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111;
+  cursor: pointer;
+  text-align: left;
+  transition: all .18s;
+}
+.voice-opt:hover  { border-color: var(--green); background: #f0faf3; }
+.voice-opt.sel    { border-color: var(--green); background: var(--green); color: #fff; }
+
+/* ── DIVIDER ─────────────────────────────────────────── */
+.divider {
+  height: 5px;
+  background: linear-gradient(90deg, var(--red) 0%, #e67e22 50%, var(--green) 100%);
+}
+.divider-label {
+  text-align: center;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #888;
+  padding: 10px 0;
+  background: #e8eaf0;
+}
+
+@media (max-width: 480px) {
+  .survey-block { padding: 16px 14px; }
+  .voice-block  { padding: 20px 16px 18px; }
+  .voice-q-text { font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>CGA Questionnaire Format Comparison</h1>
+  <p>Research Demo &mdash; Simulating older adult reading experience across two interface designs</p>
+</div>
+
+<!-- ═══════════════════════════════ FORMAT A ═══════════════════════════════ -->
+<div class="section section-a">
+  <div class="section-meta">
+    <div class="section-tag tag-a">Format A &mdash; Conventional</div>
+    <div class="section-title">Standard full-width questionnaire</div>
+    <div class="section-desc">Typical web survey. Press <strong>Play</strong> to simulate visual scanning as an older reader might experience it.</div>
+  </div>
+
+  <div class="q-tabs" id="tabs-a"></div>
+
+  <div class="controls-a">
+    <button class="play-btn play-btn-a" id="playBtnA" onclick="playEye()">&#9654; Play Eye-Tracking</button>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(192,57,43,.85)"></div>
+        <span>Fixation (longer = harder word)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(142,68,173,.85)"></div>
+        <span>Regression</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:rgba(41,128,185,.7)"></div>
+        <span>Attention drift</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey-wrap" id="surveyWrap">
+    <canvas id="eyeCanvas"></canvas>
+    <div id="surveyContent"></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="divider-label">&#8679; Format A &nbsp;|&nbsp; Format B &#8681;</div>
+
+<!-- ═══════════════════════════════ FORMAT B ═══════════════════════════════ -->
+<div class="section section-b">
+  <div class="section-meta">
+    <div class="section-tag tag-b">Format B &mdash; Voice-Guided Narrow-Width</div>
+    <div class="section-title">Senior-friendly: narrow column + synchronized speech</div>
+    <div class="section-desc">Short line length, large buttons, voice with word-level highlight. Press <strong>Play</strong> to experience guided reading.</div>
+  </div>
+
+  <div class="q-tabs" id="tabs-b"></div>
+
+  <div class="controls-b">
+    <button class="play-btn play-btn-b" id="playBtnB" onclick="playVoice()">&#9654; Play Voice Guide</button>
+  </div>
+  <div class="voice-status" id="voiceStatus">Press Play to hear the question read aloud with synchronized highlighting.</div>
+
+  <div class="voice-panel">
+    <div id="voiceContent"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────────────
+const QS = [
+  {
+    text: "In the past 6 months, have you lost weight without trying?",
+    opts: ["Yes", "No", "Not sure"]
+  },
+  {
+    text: "Because of your health or physical condition, do you have difficulty walking across a room?",
+    opts: ["No difficulty", "Some difficulty", "A lot of difficulty", "Unable to do"]
+  }
+];
+
+let qA = 0, qB = 0;
+let eyeRAF = null;
+let voiceTimer = null;
+let currentUtter = null;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildTabs(containerId, activeClass, onClick) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  QS.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-tab';
+    btn.textContent = `Question ${i + 1}`;
+    btn.onclick = () => onClick(i);
+    el.appendChild(btn);
+  });
+}
+
+function setTabActive(containerId, activeClass, idx) {
+  document.querySelectorAll(`#${containerId} .q-tab`).forEach((t, i) => {
+    t.className = 'q-tab' + (i === idx ? ` ${activeClass}` : '');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMAT A — RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderA(idx) {
+  const q = QS[idx];
+  const el = document.getElementById('surveyContent');
+  el.innerHTML = '';
+
+  const block = document.createElement('div');
+  block.className = 'survey-block';
+
+  const num = document.createElement('div');
+  num.className = 'survey-q-num';
+  num.textContent = `Question ${idx + 1} of ${QS.length}`;
+  block.appendChild(num);
+
+  const qt = document.createElement('div');
+  qt.className = 'survey-q-text';
+  qt.id = 'sqtext';
+  q.text.split(' ').forEach((w, i, arr) => {
+    const s = document.createElement('span');
+    s.className = 'wa';
+    s.textContent = w + (i < arr.length - 1 ? '\u00a0' : '');
+    qt.appendChild(s);
+  });
+  block.appendChild(qt);
+
+  const opts = document.createElement('div');
+  opts.className = 'survey-options';
+  q.opts.forEach((o, i) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'survey-opt';
+    const r = document.createElement('input');
+    r.type = 'radio'; r.name = `qa${idx}`; r.value = i;
+    lbl.appendChild(r);
+    lbl.appendChild(document.createTextNode(o));
+    opts.appendChild(lbl);
+  });
+  block.appendChild(opts);
+  el.appendChild(block);
+  resizeCanvas();
+}
+
+function switchA(idx) {
+  stopEye();
+  qA = idx;
+  setTabActive('tabs-a', 'active-a', idx);
+  renderA(idx);
+  resetPlayBtn('playBtnA', '&#9654; Play Eye-Tracking');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMAT A — EYE-TRACKING SIMULATION
+// ─────────────────────────────────────────────────────────────────────────────
+function resizeCanvas() {
+  const wrap = document.getElementById('surveyWrap');
+  const c = document.getElementById('eyeCanvas');
+  c.width  = wrap.offsetWidth;
+  c.height = wrap.offsetHeight;
+}
+
+function getWordRects() {
+  const wrap = document.getElementById('surveyWrap');
+  const wr   = wrap.getBoundingClientRect();
+  return Array.from(document.querySelectorAll('#sqtext .wa')).map(s => {
+    const r = s.getBoundingClientRect();
+    return {
+      cx: r.left - wr.left + r.width  / 2,
+      cy: r.top  - wr.top  + r.height / 2,
+      w:  r.width,
+      word: s.textContent.trim()
+    };
+  });
+}
+
+function getOptRects() {
+  const wrap = document.getElementById('surveyWrap');
+  const wr   = wrap.getBoundingClientRect();
+  return Array.from(document.querySelectorAll('#surveyContent .survey-opt')).map(el => {
+    const r = el.getBoundingClientRect();
+    return {
+      cx: r.left - wr.left + r.width * 0.25,
+      cy: r.top  - wr.top  + r.height / 2,
+      word: el.textContent.trim()
+    };
+  });
+}
+
+function wordHardness(word) {
+  const w = word.replace(/[^a-z]/gi, '').toLowerCase();
+  if (w.length <= 3) return 0.25;
+  if (w.length <= 5) return 0.50;
+  if (w.length <= 7) return 0.70;
+  return 1.0;
+}
+
+function buildPath(words, opts) {
+  // sequence of {type, x, y, dur, gaze} or saccade {x1,y1,x2,y2}
+  const path = [];
+  const W = document.getElementById('surveyWrap').offsetWidth;
+
+  const fix  = (x, y, dur, g) => path.push({type:'fix',  x, y, dur, g});
+  const sacc = (x1,y1,x2,y2,g,dur) => path.push({type:'sacc', x1, y1, x2, y2, g, dur: dur||(60+Math.random()*60)});
+  const drift= (x, y, dx, dy, dur, g) => path.push({type:'drift', x, y, dx, dy, dur, g});
+
+  let px = words[0].cx, py = words[0].cy;
+
+  words.forEach((wp, i) => {
+    const h = wordHardness(wp.word);
+    const fixDur = 110 + h * 320 + Math.random() * 80;
+
+    // Occasional pre-word drift into margin
+    if (Math.random() < 0.18) {
+      const driftX = wp.cx + (Math.random() < .5 ? -1 : 1) * (90 + Math.random() * 120);
+      const driftY = wp.cy + (Math.random() - .5) * 40;
+      sacc(px, py, driftX, driftY, 'drift');
+      fix(driftX, driftY, 90 + Math.random() * 80, 'drift');
+      sacc(driftX, driftY, wp.cx, wp.cy, 'return');
+    } else {
+      sacc(px, py, wp.cx, wp.cy, 'read');
+    }
+
+    fix(wp.cx, wp.cy, fixDur, 'read');
+
+    // Regression
+    if (Math.random() < 0.32 && i > 0) {
+      const bi = Math.max(0, i - 1 - Math.floor(Math.random() * 2));
+      const bw = words[bi];
+      sacc(wp.cx, wp.cy, bw.cx, bw.cy, 'regress');
+      fix(bw.cx, bw.cy, 90 + Math.random() * 160, 'regress');
+      sacc(bw.cx, bw.cy, wp.cx, wp.cy, 'return');
+    }
+
+    // Narrow-window drift
+    if (Math.random() < 0.1) {
+      drift(wp.cx, wp.cy, (Math.random()-.5)*100, (Math.random()-.5)*30, 220, 'drift');
+    }
+
+    px = wp.cx; py = wp.cy;
+  });
+
+  // Read option labels
+  opts.forEach((op, i) => {
+    sacc(px, py, op.cx, op.cy, 'read');
+    fix(op.cx, op.cy, 180 + Math.random() * 140, 'read');
+    if (i > 0 && Math.random() < .45) {
+      const prev = opts[i-1];
+      sacc(op.cx, op.cy, prev.cx, prev.cy, 'regress');
+      fix(prev.cx, prev.cy, 130 + Math.random() * 100, 'regress');
+      sacc(prev.cx, prev.cy, op.cx, op.cy, 'return');
+    }
+    px = op.cx; py = op.cy;
+  });
+
+  return path;
+}
+
+const COLORS = {
+  read:    'rgba(192,57,43,',
+  regress: 'rgba(142,68,173,',
+  drift:   'rgba(41,128,185,',
+  return:  'rgba(211,84,0,'
+};
+
+function gazeFill(g, a) {
+  return (COLORS[g] || 'rgba(120,120,120,') + a + ')';
+}
+
+function easeIO(t) { return t < .5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function playEye() {
+  stopEye();
+  const btn = document.getElementById('playBtnA');
+  btn.innerHTML = '&#9632; Stop';
+  btn.classList.add('active');
+
+  resizeCanvas();
+  const words = getWordRects();
+  const opts  = getOptRects();
+  if (!words.length) return;
+  const path  = buildPath(words, opts);
+
+  const c   = document.getElementById('eyeCanvas');
+  const ctx = c.getContext('2d');
+  let pi = 0, t0 = null;
+  let gx = path[0].x ?? path[0].x1;
+  let gy = path[0].y ?? path[0].y1;
+  const trail = [];
+
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const el = ts - t0;
+    if (pi >= path.length) {
+      ctx.clearRect(0, 0, c.width, c.height);
+      resetPlayBtn('playBtnA', '&#9654; Replay Eye-Tracking');
+      eyeRAF = null;
+      return;
+    }
+
+    const s = path[pi];
+    const prog = Math.min(el / s.dur, 1);
+
+    // update gaze position
+    if (s.type === 'fix') {
+      gx = s.x + (Math.random()-.5)*3.5;
+      gy = s.y + (Math.random()-.5)*3.5;
+    } else if (s.type === 'sacc') {
+      gx = s.x1 + (s.x2 - s.x1) * easeIO(prog);
+      gy = s.y1 + (s.y2 - s.y1) * easeIO(prog);
+    } else if (s.type === 'drift') {
+      gx = s.x + s.dx * prog;
+      gy = s.y + s.dy * prog;
+    }
+
+    trail.push({x: gx, y: gy, g: s.g});
+    if (trail.length > 22) trail.shift();
+
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    // Narrow attentional window vignette
+    if (s.type === 'fix') {
+      const gr = ctx.createRadialGradient(gx, gy, 14, gx, gy, 90);
+      gr.addColorStop(0,   'rgba(0,0,0,0)');
+      gr.addColorStop(.65, 'rgba(0,0,0,0)');
+      gr.addColorStop(1,   'rgba(0,0,0,.055)');
+      ctx.fillStyle = gr;
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
+
+    // Trail
+    trail.forEach((pt, i) => {
+      const a = (i / trail.length) * .45;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = gazeFill(pt.g, a);
+      ctx.fill();
+    });
+
+    // Outer attention ring
+    ctx.beginPath();
+    ctx.arc(gx, gy, 30, 0, Math.PI*2);
+    ctx.strokeStyle = gazeFill(s.g, .12);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Core gaze dot
+    const r = s.type === 'fix' ? 9 : 6;
+    ctx.beginPath();
+    ctx.arc(gx, gy, r, 0, Math.PI*2);
+    ctx.fillStyle = gazeFill(s.g, .88);
+    ctx.fill();
+
+    // Fixation progress arc
+    if (s.type === 'fix') {
+      ctx.beginPath();
+      ctx.arc(gx, gy, r+5, -Math.PI/2, -Math.PI/2 + Math.PI*2*prog);
+      ctx.strokeStyle = gazeFill(s.g, .7);
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+
+    if (prog >= 1) { pi++; t0 = null; }
+    eyeRAF = requestAnimationFrame(frame);
+  }
+
+  eyeRAF = requestAnimationFrame(frame);
+}
+
+function stopEye() {
+  if (eyeRAF) { cancelAnimationFrame(eyeRAF); eyeRAF = null; }
+  const c = document.getElementById('eyeCanvas');
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMAT B — RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderB(idx) {
+  const q = QS[idx];
+  const el = document.getElementById('voiceContent');
+  el.innerHTML = '';
+
+  const block = document.createElement('div');
+  block.className = 'voice-block';
+
+  const num = document.createElement('div');
+  num.className = 'voice-q-num';
+  num.textContent = `Question ${idx + 1}`;
+  block.appendChild(num);
+
+  const qt = document.createElement('div');
+  qt.className = 'voice-q-text';
+  qt.id = 'vqtext';
+  q.text.split(' ').forEach((w, i, arr) => {
+    const s = document.createElement('span');
+    s.className = 'wb';
+    s.textContent = w;
+    qt.appendChild(s);
+    if (i < arr.length - 1) qt.appendChild(document.createTextNode(' '));
+  });
+  block.appendChild(qt);
+
+  const opts = document.createElement('div');
+  opts.className = 'voice-options';
+  q.opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'voice-opt';
+    btn.textContent = o;
+    btn.onclick = () => {
+      document.querySelectorAll('#voiceContent .voice-opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+    };
+    opts.appendChild(btn);
+  });
+  block.appendChild(opts);
+  el.appendChild(block);
+}
+
+function switchB(idx) {
+  stopVoice();
+  qB = idx;
+  setTabActive('tabs-b', 'active-b', idx);
+  renderB(idx);
+  resetPlayBtn('playBtnB', '&#9654; Play Voice Guide');
+  document.getElementById('voiceStatus').textContent =
+    'Press Play to hear the question read aloud with synchronized highlighting.';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMAT B — VOICE + HIGHLIGHT
+// ─────────────────────────────────────────────────────────────────────────────
+function clearHL() {
+  document.querySelectorAll('#vqtext .wb').forEach(s => s.classList.remove('hl'));
+}
+
+function hlWord(idx) {
+  clearHL();
+  const spans = document.querySelectorAll('#vqtext .wb');
+  if (spans[idx]) {
+    spans[idx].classList.add('hl');
+    spans[idx].scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
+
+function fallbackHL(words) {
+  // Timing-based fallback: ~250ms per word + length factor
+  let i = 0;
+  function step() {
+    if (i >= words.length) {
+      clearHL();
+      resetPlayBtn('playBtnB', '&#9654; Replay Voice Guide');
+      document.getElementById('voiceStatus').textContent = 'Done. Press to replay.';
+      return;
+    }
+    hlWord(i);
+    const delay = 220 + words[i].length * 22;
+    i++;
+    voiceTimer = setTimeout(step, delay);
+  }
+  step();
+}
+
+function playVoice() {
+  stopVoice();
+  const btn    = document.getElementById('playBtnB');
+  const status = document.getElementById('voiceStatus');
+  btn.innerHTML = '&#9632; Stop';
+  btn.classList.add('active');
+
+  const q     = QS[qB];
+  const words = q.text.split(' ');
+
+  clearHL();
+
+  if (!window.speechSynthesis) {
+    status.textContent = 'Speech not supported — showing visual highlight only.';
+    fallbackHL(words);
+    return;
+  }
+
+  const doSpeak = () => {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(q.text);
+    utter.rate   = 0.82;
+    utter.pitch  = 1.0;
+    utter.volume = 1.0;
+
+    // Pick a clear English voice
+    const voices   = speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.lang.startsWith('en') && /Google|Samantha|Karen|Daniel/i.test(v.name))
+                   || voices.find(v => v.lang.startsWith('en-US'))
+                   || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) utter.voice = preferred;
+
+    let gotBoundary = false;
+
+    utter.onboundary = e => {
+      if (e.name !== 'word') return;
+      gotBoundary = true;
+      const ci = e.charIndex;
+      let cum = 0;
+      for (let i = 0; i < words.length; i++) {
+        if (ci >= cum && ci < cum + words[i].length) { hlWord(i); break; }
+        cum += words[i].length + 1;
+      }
+    };
+
+    // Estimate total duration for fallback detection
+    const estDur = (q.text.length / 5) / (utter.rate * 2.5) * 1000;
+    let fallbackTriggered = false;
+    const fallbackTimeout = setTimeout(() => {
+      if (!gotBoundary) {
+        fallbackTriggered = true;
+        speechSynthesis.cancel();
+        status.textContent = 'Voice active (visual sync mode)';
+        fallbackHL(words);
+      }
+    }, 800);
+
+    utter.onstart = () => {
+      status.textContent = 'Reading aloud\u2026';
+    };
+
+    utter.onend = () => {
+      clearTimeout(fallbackTimeout);
+      if (fallbackTriggered) return;
+      clearHL();
+      resetPlayBtn('playBtnB', '&#9654; Replay Voice Guide');
+      status.textContent = 'Done. You can replay or choose another question.';
+      currentUtter = null;
+    };
+
+    utter.onerror = err => {
+      clearTimeout(fallbackTimeout);
+      if (err.error === 'interrupted' || err.error === 'canceled') return;
+      status.textContent = 'Speech error — showing visual highlight only.';
+      resetPlayBtn('playBtnB', '&#9654; Play Voice Guide');
+      if (!fallbackTriggered) fallbackHL(words);
+    };
+
+    currentUtter = utter;
+    speechSynthesis.speak(utter);
+  };
+
+  // Voices may not be loaded yet
+  if (speechSynthesis.getVoices().length === 0) {
+    const onVoices = () => { speechSynthesis.removeEventListener('voiceschanged', onVoices); doSpeak(); };
+    speechSynthesis.addEventListener('voiceschanged', onVoices);
+    // Timeout safety
+    voiceTimer = setTimeout(() => { speechSynthesis.removeEventListener('voiceschanged', onVoices); doSpeak(); }, 600);
+  } else {
+    doSpeak();
+  }
+}
+
+function stopVoice() {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
+  currentUtter = null;
+  clearHL();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function resetPlayBtn(id, html) {
+  const btn = document.getElementById(id);
+  btn.innerHTML = html;
+  btn.classList.remove('active');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  buildTabs('tabs-a', 'active-a', switchA);
+  buildTabs('tabs-b', 'active-b', switchB);
+  setTabActive('tabs-a', 'active-a', 0);
+  setTabActive('tabs-b', 'active-b', 0);
+  renderA(0);
+  renderB(0);
+  if (window.speechSynthesis) speechSynthesis.getVoices(); // preload
+});
+
+window.addEventListener('resize', resizeCanvas);
+</script>
+</body>
+</html>
